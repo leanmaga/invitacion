@@ -216,7 +216,7 @@ export default function RSVPSection() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <User className="w-5 h-5 text-quince-500" />
                   Nombre Completo *
                 </label>
@@ -234,7 +234,7 @@ export default function RSVPSection() {
 
               {/* Email */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Mail className="w-5 h-5 text-quince-500" />
                   Email *
                 </label>
@@ -252,7 +252,7 @@ export default function RSVPSection() {
 
               {/* Phone */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Phone className="w-5 h-5 text-quince-500" />
                   Teléfono
                 </label>
@@ -269,7 +269,7 @@ export default function RSVPSection() {
 
               {/* Number of guests */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Users className="w-5 h-5 text-quince-500" />
                   Número de Invitados *
                 </label>
@@ -292,7 +292,7 @@ export default function RSVPSection() {
 
             {/* Dietary restrictions */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+              <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                 <Utensils className="w-5 h-5 text-quince-500" />
                 Restricciones Alimentarias
               </label>
@@ -309,7 +309,7 @@ export default function RSVPSection() {
 
             {/* Message */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+              <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-quince-500" />
                 Mensaje Especial para Isabella
               </label>
