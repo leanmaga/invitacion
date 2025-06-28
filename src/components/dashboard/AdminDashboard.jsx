@@ -190,8 +190,8 @@ export default function AdminDashboard() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-100">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-quince-500 border-t-transparent"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-quince-500"></div>
       </div>
     );
   }
@@ -211,38 +211,42 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Crown className="w-8 h-8 text-quince-500" />
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Panel de Administración - Isabella
-              </h1>
-              <p className="text-sm text-gray-600">Gestión de confirmaciones</p>
+      <div className="bg-white shadow-sm ">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-quince-500 flex-shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                  Admin - Isabella
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Gestión de confirmaciones
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              <button
+                onClick={loadDashboardData}
+                disabled={loading}
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 text-sm"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
+                <span className="hidden sm:inline">Actualizar</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={loadDashboardData}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-              />
-              Actualizar
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition"
-            >
-              <LogOut className="w-4 h-4" />
-              Cerrar Sesión
-            </button>
-          </div>
         </div>
-      </header>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <AdminStats stats={stats} />
