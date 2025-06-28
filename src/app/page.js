@@ -16,24 +16,30 @@ import Navigation from "@/components/Navigation";
 
 export default function Home() {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="min-h-screen bg-gradient-to-br from-quince-50 via-white to-gold-50"
-    >
-      <Navigation />
-      <HeroSection />
-      <CountdownSection />
-      <EventDetails />
-      <Timeline />
-      <PhotoGallery />
-      <DressCode />
-      <LocationSection />
-      <MusicRequests />
-      <HashtagSection />
-      <RSVPSection />
-      <Footer />
-    </motion.div>
+    <div className="min-h-screen w-full overflow-x-hidden">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="w-full min-h-screen bg-gradient-to-br from-quince-50 via-white to-gold-50"
+      >
+        <Navigation />
+
+        {/* Contenedor principal con control de ancho */}
+        <main className="w-full overflow-x-hidden">
+          <HeroSection />
+          <CountdownSection />
+          <EventDetails />
+          <Timeline />
+          <PhotoGallery />
+          <DressCode />
+          <LocationSection />
+          <MusicRequests />
+          <HashtagSection />
+          <RSVPSection />
+          <Footer />
+        </main>
+      </motion.div>
+    </div>
   );
 }
