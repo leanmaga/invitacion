@@ -23,11 +23,13 @@ import {
 import { supabase } from "../lib/supabase";
 
 // 🔐 CONTRASEÑA DE ADMIN DESDE VARIABLES DE ENTORNO
-const ADMIN_PASSWORD = process.env.NEXT_ADMIN_PASSWORD;
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
 // ⚠️ Validación de variables de entorno
 if (!ADMIN_PASSWORD) {
-  console.error("❌ NEXT_ADMIN_PASSWORD no está configurado en .env.local");
+  console.error(
+    "❌ NEXT_PUBLIC_ADMIN_PASSWORD no está configurado en .env.local"
+  );
 }
 
 export default function AdminDashboard() {
