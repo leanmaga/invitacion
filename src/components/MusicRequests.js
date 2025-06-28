@@ -27,36 +27,17 @@ export default function MusicRequests() {
   // Cargar canciones al montar el componente
   useEffect(() => {
     loadSongs();
-
-    // Suscripción en tiempo real para nuevas canciones
-    const subscription = supabase
-      .channel("song_requests")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "song_requests",
-          filter: "approved=eq.true",
-        },
-        (payload) => {
-          setDbSongs((prev) => [payload.new, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(subscription);
-    };
+    // Removida la suscripción en tiempo real para evitar duplicados
+    // La lista se actualiza manualmente cuando se envía una canción
   }, []);
 
   const loadSongs = async () => {
     try {
       setLoadingSongs(true);
+      // Cargar TODAS las canciones sin filtro de aprobación
       const { data, error } = await supabase
         .from("song_requests")
         .select("*")
-        .eq("approved", true)
         .order("created_at", { ascending: false })
         .limit(20);
 
@@ -75,7 +56,7 @@ export default function MusicRequests() {
 
     try {
       setLoading(true);
-      setError("");
+      setError(""); // Limpiar errores previos
 
       const { data, error } = await supabase
         .from("song_requests")
@@ -84,27 +65,47 @@ export default function MusicRequests() {
             song_name: songRequest.trim(),
             artist_name: artistRequest.trim() || null,
             message: message.trim() || null,
-            ip_address: null, // Podrías obtener la IP si quieres
-            approved: true, // Auto-aprobar por ahora, puedes cambiar esto
+            ip_address: null,
           },
         ])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
 
+      // Actualizar la lista local inmediatamente
+      if (data && data[0]) {
+        setDbSongs((prev) => [data[0], ...prev]);
+      }
+
+      // Mostrar mensaje de éxito PERMANENTE (hasta refrescar página)
       setSubmitted(true);
 
-      setTimeout(() => {
-        setSongRequest("");
-        setArtistRequest("");
-        setMessage("");
-        setSubmitted(false);
-      }, 3000);
+      // Limpiar formulario pero NO resetear submitted
+      setSongRequest("");
+      setArtistRequest("");
+      setMessage("");
     } catch (error) {
       console.error("Error submitting song:", error);
-      setError(
-        "Hubo un error al enviar tu solicitud. Por favor intenta de nuevo."
-      );
+
+      // Mostrar error más específico
+      let errorMessage = "Hubo un error al enviar tu solicitud. ";
+
+      if (error.code === "PGRLS0001" || error.message?.includes("RLS")) {
+        errorMessage +=
+          "Error de permisos en la base de datos. Contacta al administrador.";
+      } else if (error.code === "42501") {
+        errorMessage += "Sin permisos para insertar datos.";
+      } else if (error.message?.includes("JWT")) {
+        errorMessage += "Error de autenticación con la base de datos.";
+      } else {
+        errorMessage += "Por favor intenta de nuevo.";
+      }
+
+      setError(errorMessage);
+      // NO cambiar submitted a true si hay error, permitir intentar de nuevo
     } finally {
       setLoading(false);
     }
@@ -114,9 +115,6 @@ export default function MusicRequests() {
     "Quinceañera - Cristian Castro",
     "Tiempo de Vals - Chayanne",
     "Mi Niña Bonita - Jesse & Joy",
-    "Eres - Café Tacvba",
-    "La Bikina - Luis Miguel",
-    "Cielito Lindo - Tradicional",
   ];
 
   return (
@@ -124,6 +122,28 @@ export default function MusicRequests() {
       id="music"
       className="py-20 bg-gradient-to-br from-quince-50 to-gold-50"
     >
+      {/* Custom scrollbar styles */}
+      <style jsx global>{`
+        .message-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #f472b6 #fdf2f8;
+        }
+        .message-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .message-scrollbar::-webkit-scrollbar-track {
+          background: #fdf2f8;
+          border-radius: 10px;
+        }
+        .message-scrollbar::-webkit-scrollbar-thumb {
+          background: #f472b6;
+          border-radius: 10px;
+        }
+        .message-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ec4899;
+        }
+      `}</style>
+
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -231,11 +251,15 @@ export default function MusicRequests() {
               >
                 <Heart className="w-16 h-16 text-quince-500 mx-auto mb-4" />
                 <h4 className="font-serif text-2xl font-bold text-gray-800 mb-2">
-                  ¡Gracias por tu Solicitud!
+                  ¡Canción Agregada Exitosamente!
                 </h4>
-                <p className="text-gray-600">
-                  Tu canción ha sido agregada a nuestra lista. ¡Esperamos que
-                  suene durante la fiesta!
+                <p className="text-gray-600 mb-4">
+                  Tu canción aparece ahora en la lista Canciones Solicitadas.
+                  ¡Esperamos que suene durante la fiesta!
+                </p>
+                <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                  🎵 Una canción por persona. Para agregar otra, recarga la
+                  página.
                 </p>
               </motion.div>
             )}
@@ -254,7 +278,8 @@ export default function MusicRequests() {
               <h3 className="font-serif text-2xl font-bold text-gray-800 mb-6 flex items-center justify-between">
                 <span>Canciones Solicitadas</span>
                 <span className="text-sm bg-quince-100 text-quince-800 px-3 py-1 rounded-full">
-                  {dbSongs.length} canciones
+                  {dbSongs.length}{" "}
+                  {dbSongs.length === 1 ? "canción" : "canciones"}
                 </span>
               </h3>
 
@@ -264,31 +289,11 @@ export default function MusicRequests() {
                 </div>
               ) : dbSongs.length > 0 ? (
                 <div
-                  className="space-y-3 overflow-y-auto pr-2"
+                  className="space-y-3 overflow-y-auto message-scrollbar pr-2"
                   style={{
                     height: "240px", // Altura fija para aproximadamente 3 canciones
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "#f472b6 #fdf2f8",
                   }}
                 >
-                  {/* Custom scrollbar styles */}
-                  <style jsx>{`
-                    div::-webkit-scrollbar {
-                      width: 6px;
-                    }
-                    div::-webkit-scrollbar-track {
-                      background: #fdf2f8;
-                      border-radius: 10px;
-                    }
-                    div::-webkit-scrollbar-thumb {
-                      background: #f472b6;
-                      border-radius: 10px;
-                    }
-                    div::-webkit-scrollbar-thumb:hover {
-                      background: #ec4899;
-                    }
-                  `}</style>
-
                   <AnimatePresence>
                     {dbSongs.map((song, index) => (
                       <motion.div
@@ -311,9 +316,13 @@ export default function MusicRequests() {
                               </p>
                             )}
                             {song.message && (
-                              <p className="text-xs text-gray-500 mt-1 italic line-clamp-2">
+                              <div
+                                className="text-xs text-gray-500 mt-1 italic message-scrollbar overflow-y-auto"
+                                style={{ maxHeight: "40px" }}
+                                title={song.message}
+                              >
                                 {song.message}
-                              </p>
+                              </div>
                             )}
                             <p className="text-xs text-gray-400 mt-1">
                               {new Date(song.created_at).toLocaleDateString(
@@ -376,8 +385,9 @@ export default function MusicRequests() {
                 Canciones Populares
               </h3>
               <p className="text-gray-600 mb-6">
-                Estas son algunas de las canciones más solicitadas para
-                quinceañeras:
+                {submitted
+                  ? "Ya enviaste tu canción. Para elegir otra, recarga la página:"
+                  : "Estas son algunas de las canciones más solicitadas para quinceañeras. Click para seleccionar:"}
               </p>
 
               <div className="space-y-4">
@@ -388,16 +398,35 @@ export default function MusicRequests() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
-                    whileHover={{ scale: 1.02, x: 5 }}
-                    className="flex items-center gap-3 p-3 bg-white/50 rounded-xl hover:bg-white/80 transition-all cursor-pointer"
+                    whileHover={{
+                      scale: submitted ? 1 : 1.02,
+                      x: submitted ? 0 : 5,
+                    }}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+                      submitted
+                        ? "bg-gray-100 cursor-not-allowed opacity-60"
+                        : "bg-white/50 hover:bg-white/80 cursor-pointer"
+                    }`}
                     onClick={() => {
+                      if (submitted) {
+                        alert(
+                          "Ya enviaste tu canción. Para agregar otra, recarga la página."
+                        );
+                        return;
+                      }
                       const [songName, artist] = song.split(" - ");
                       setSongRequest(songName);
                       setArtistRequest(artist || "");
                     }}
                   >
                     <Music className="w-5 h-5 text-quince-400 flex-shrink-0" />
-                    <span className="text-gray-700 font-medium">{song}</span>
+                    <span
+                      className={`font-medium ${
+                        submitted ? "text-gray-500" : "text-gray-700"
+                      }`}
+                    >
+                      {song}
+                    </span>
                   </motion.div>
                 ))}
               </div>

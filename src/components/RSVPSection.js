@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, User, Phone, Mail, Users, Utensils, Heart } from "lucide-react";
+import {
+  Send,
+  User,
+  Phone,
+  Mail,
+  Users,
+  Utensils,
+  Heart,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function RSVPSection() {
   const [formData, setFormData] = useState({
@@ -14,6 +25,18 @@ export default function RSVPSection() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // 📱 NÚMERO DE WHATSAPP DESDE VARIABLES DE ENTORNO
+  const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+
+  // ⚠️ Validación de variables de entorno
+  if (!WHATSAPP_NUMBER) {
+    console.error(
+      "❌ NEXT_PUBLIC_WHATSAPP_NUMBER no está configurado en .env.local"
+    );
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -22,24 +45,98 @@ export default function RSVPSection() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("RSVP submitted:", formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        guests: "1",
-        dietary: "",
-        message: "",
-      });
-      setSubmitted(false);
-    }, 5000);
+  const formatWhatsAppMessage = (data) => {
+    const guestText =
+      data.guests === "1" ? "Solo yo" : `${data.guests} personas`;
+
+    let message = `🎉 *CONFIRMACIÓN DE ASISTENCIA - QUINCEAÑERA ISABELLA*\n\n`;
+    message += `👤 *Nombre:* ${data.name}\n`;
+    message += `📧 *Email:* ${data.email}\n`;
+    message += `📱 *Teléfono:* ${data.phone || "No proporcionado"}\n`;
+    message += `👥 *Invitados:* ${guestText}\n`;
+
+    if (data.dietary) {
+      message += `🍽️ *Restricciones alimentarias:* ${data.dietary}\n`;
+    }
+
+    if (data.message) {
+      message += `💌 *Mensaje para Isabella:* ${data.message}\n`;
+    }
+
+    message += `\n📅 *Fecha:* ${new Date().toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+
+    return encodeURIComponent(message);
   };
 
+  const sendToWhatsApp = (data) => {
+    const message = formatWhatsAppMessage(data);
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    window.open(whatsappURL, "_blank");
+  };
+
+  const saveToDatabase = async (data) => {
+    const { error } = await supabase.from("rsvp_confirmations").insert([
+      {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        guests: parseInt(data.guests),
+        dietary_restrictions: data.dietary || null,
+        message: data.message || null,
+      },
+    ]);
+
+    if (error) throw error;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      setError("");
+
+      // 1. Guardar en base de datos
+      await saveToDatabase(formData);
+
+      // 2. Enviar por WhatsApp
+      sendToWhatsApp(formData);
+
+      // 3. Mostrar confirmación
+      setSubmitted(true);
+
+      setTimeout(() => {
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          guests: "1",
+          dietary: "",
+          message: "",
+        });
+        setSubmitted(false);
+      }, 5000);
+    } catch (error) {
+      console.error("Error submitting RSVP:", error);
+      setError(
+        "Hubo un error al guardar la confirmación. El WhatsApp se abrirá de todas formas."
+      );
+
+      // Enviar por WhatsApp aunque falle la BD
+      sendToWhatsApp(formData);
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🎉 PANTALLA DE CONFIRMACIÓN (cuando submitted = true)
   if (submitted) {
     return (
       <section
@@ -55,20 +152,20 @@ export default function RSVPSection() {
           >
             <Heart className="w-20 h-20 text-quince-500 mx-auto mb-6" />
             <h2 className="font-serif text-4xl font-bold text-gray-800 mb-4">
-              ¡Confirmación Recibida!
+              ¡Confirmación Enviada!
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Gracias por confirmar tu asistencia. ¡No podemos esperar a
-              celebrar contigo!
+              Tu confirmación se envió por WhatsApp y se guardó en nuestro
+              sistema. ¡No podemos esperar a celebrar contigo!
             </p>
             <div className="space-y-4 text-left max-w-md mx-auto">
               <div className="flex items-center gap-3 text-gray-700">
-                <User className="w-5 h-5 text-quince-500" />
-                <span>Te enviaremos más detalles por email</span>
+                <Phone className="w-5 h-5 text-green-500" />
+                <span>Confirmación enviada por WhatsApp</span>
               </div>
               <div className="flex items-center gap-3 text-gray-700">
-                <Phone className="w-5 h-5 text-quince-500" />
-                <span>Llamaremos para confirmar detalles especiales</span>
+                <Mail className="w-5 h-5 text-quince-500" />
+                <span>Te contactaremos para detalles adicionales</span>
               </div>
             </div>
           </motion.div>
@@ -77,6 +174,7 @@ export default function RSVPSection() {
     );
   }
 
+  // 📝 FORMULARIO PRINCIPAL (cuando submitted = false)
   return (
     <section
       id="rsvp"
@@ -108,10 +206,17 @@ export default function RSVPSection() {
           className="glass rounded-3xl p-8 md:p-12"
         >
           <form onSubmit={handleSubmit} className="space-y-8">
+            {error && (
+              <div className="p-4 bg-red-100 border border-red-300 rounded-xl flex items-center gap-2 text-red-700">
+                <AlertCircle className="w-5 h-5" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
-                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <User className="w-5 h-5 text-quince-500" />
                   Nombre Completo *
                 </label>
@@ -121,14 +226,15 @@ export default function RSVPSection() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
                   placeholder="Tu nombre completo"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Mail className="w-5 h-5 text-quince-500" />
                   Email *
                 </label>
@@ -138,14 +244,15 @@ export default function RSVPSection() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
                   placeholder="tu@email.com"
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Phone className="w-5 h-5 text-quince-500" />
                   Teléfono
                 </label>
@@ -154,14 +261,15 @@ export default function RSVPSection() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all"
-                  placeholder="+52 (555) 123-4567"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
+                  placeholder="+54 11 2776-4823"
                 />
               </div>
 
               {/* Number of guests */}
               <div>
-                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+                <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                   <Users className="w-5 h-5 text-quince-500" />
                   Número de Invitados *
                 </label>
@@ -170,7 +278,8 @@ export default function RSVPSection() {
                   value={formData.guests}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
                 >
                   <option value="1">Solo yo</option>
                   <option value="2">2 personas (yo + acompañante)</option>
@@ -183,7 +292,7 @@ export default function RSVPSection() {
 
             {/* Dietary restrictions */}
             <div>
-              <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+              <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                 <Utensils className="w-5 h-5 text-quince-500" />
                 Restricciones Alimentarias
               </label>
@@ -192,14 +301,15 @@ export default function RSVPSection() {
                 name="dietary"
                 value={formData.dietary}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
                 placeholder="Vegetariano, sin gluten, alergias, etc."
               />
             </div>
 
             {/* Message */}
             <div>
-              <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
+              <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-quince-500" />
                 Mensaje Especial para Isabella
               </label>
@@ -208,7 +318,8 @@ export default function RSVPSection() {
                 value={formData.message}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all resize-none"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all resize-none disabled:opacity-50"
                 placeholder="Comparte tus mejores deseos para Isabella en su día especial..."
               />
             </div>
@@ -216,12 +327,22 @@ export default function RSVPSection() {
             {/* Submit button */}
             <motion.button
               type="submit"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full bg-gradient-to-r from-quince-500 to-quince-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+              whileHover={{ scale: loading ? 1 : 1.05 }}
+              whileTap={{ scale: loading ? 1 : 0.95 }}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-quince-500 to-quince-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50"
             >
-              <Send className="w-6 h-6" />
-              Confirmar Asistencia
+              {loading ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Send className="w-6 h-6" />
+                  Confirmar Asistencia
+                </>
+              )}
             </motion.button>
           </form>
 
@@ -233,9 +354,14 @@ export default function RSVPSection() {
             className="mt-8 p-6 bg-gradient-to-r from-gold-100 to-gold-200 rounded-2xl"
           >
             <p className="text-gray-700 text-center">
-              <strong>Fecha límite para confirmar:</strong> 1 de Abril, 2024
+              <strong>Fecha límite para confirmar:</strong> 30 de Julio, 2025
               <br />
-              Para preguntas, contacta a: +52 (555) 987-6543
+              Para preguntas, contacta a: +54 11 2776-4823
+              <br />
+              <span className="text-sm text-gray-600">
+                📱 Tu confirmación se enviará automáticamente por WhatsApp y se
+                guardará en nuestro sistema
+              </span>
             </p>
           </motion.div>
         </motion.div>
