@@ -10,7 +10,15 @@ import {
   AdminFilters,
   AdminConfirmationsTable,
   AdminSongsTable,
-} from "@/components/dashboard"; // Ajustá la ruta según tu estructura
+} from "@/components/dashboard";
+
+// 🎯 IMPORTAR LOS MODALES PERSONALIZADOS
+import {
+  DeleteSongModal,
+  DeleteConfirmationModal,
+  SuccessToast,
+  ErrorToast,
+} from "@/components/ui/CustomModals";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
@@ -30,9 +38,26 @@ export default function AdminDashboard() {
   const [confirmations, setConfirmations] = useState([]);
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingConfirmation, setIsDeletingConfirmation] = useState(false);
   const [stats, setStats] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGuests, setFilterGuests] = useState("all");
+
+  // 🎭 ESTADOS PARA LOS MODALES PERSONALIZADOS
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    type: null, // 'song' | 'confirmation'
+    item: null,
+  });
+  const [successToast, setSuccessToast] = useState({
+    isVisible: false,
+    message: "",
+  });
+  const [errorToast, setErrorToast] = useState({
+    isVisible: false,
+    message: "",
+  });
 
   useEffect(() => {
     const auth = localStorage.getItem("admin_authenticated");
@@ -110,35 +135,134 @@ export default function AdminDashboard() {
     });
   };
 
-  const deleteConfirmation = async (id) => {
-    if (!confirm("¿Estás seguro de eliminar esta confirmación?")) return;
+  // 🎯 MOSTRAR TOASTS
+  const showSuccessToast = (message) => {
+    setSuccessToast({ isVisible: true, message });
+    setTimeout(() => {
+      setSuccessToast({ isVisible: false, message: "" });
+    }, 4000);
+  };
+
+  const showErrorToast = (message) => {
+    setErrorToast({ isVisible: true, message });
+    setTimeout(() => {
+      setErrorToast({ isVisible: false, message: "" });
+    }, 4000);
+  };
+
+  // 🗑️ ELIMINAR CONFIRMACIÓN CON MODAL PERSONALIZADO
+  const deleteConfirmation = (id) => {
+    const confirmation = confirmations.find((c) => c.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: "confirmation",
+      item: confirmation,
+    });
+  };
+
+  const confirmDeleteConfirmation = async () => {
+    const id = deleteModal.item?.id;
+    if (!id) return;
+
+    setIsDeletingConfirmation(true);
     try {
-      const { error } = await supabase
+      console.log("🗑️ Intentando eliminar confirmación ID:", id);
+
+      const { data, error } = await supabase
         .from("rsvp_confirmations")
         .delete()
         .eq("id", id);
-      if (error) throw error;
+
+      if (error) {
+        console.error("❌ Error de Supabase:", error);
+        throw error;
+      }
+
+      console.log("✅ Confirmación eliminada exitosamente:", data);
+
       const updated = confirmations.filter((c) => c.id !== id);
       setConfirmations(updated);
       calculateStats(updated, songs);
+
+      setDeleteModal({ isOpen: false, type: null, item: null });
+      showSuccessToast("✨ Confirmación eliminada exitosamente");
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error al eliminar confirmación:", error);
+      setDeleteModal({ isOpen: false, type: null, item: null });
+
+      let errorMessage = "No se pudo eliminar la confirmación";
+      if (error.message.includes("policy")) {
+        errorMessage = "Error de permisos en la base de datos";
+      } else if (error.message.includes("not found")) {
+        errorMessage = "La confirmación ya no existe";
+      } else if (error.message.includes("network")) {
+        errorMessage = "Error de conexión a internet";
+      }
+
+      showErrorToast(errorMessage);
+    } finally {
+      setIsDeletingConfirmation(false);
     }
   };
 
-  const deleteSong = async (id) => {
-    if (!confirm("¿Estás seguro de eliminar esta canción?")) return;
+  // 🎵 ELIMINAR CANCIÓN CON MODAL PERSONALIZADO
+  const deleteSong = (id) => {
+    const song = songs.find((s) => s.id === id);
+    setDeleteModal({
+      isOpen: true,
+      type: "song",
+      item: song,
+    });
+  };
+
+  const confirmDeleteSong = async () => {
+    const id = deleteModal.item?.id;
+    if (!id) return;
+
+    setIsDeleting(true);
     try {
-      const { error } = await supabase
+      console.log("🗑️ Intentando eliminar canción ID:", id);
+      console.log("📊 Canciones actuales:", songs.length);
+
+      const { data, error } = await supabase
         .from("song_requests")
         .delete()
         .eq("id", id);
-      if (error) throw error;
+
+      if (error) {
+        console.error("❌ Error de Supabase:", error);
+        console.error("❌ Código de error:", error.code);
+        console.error("❌ Detalles:", error.details);
+        throw error;
+      }
+
+      console.log("✅ Canción eliminada exitosamente:", data);
+
+      // Actualizar estado local
       const updated = songs.filter((s) => s.id !== id);
       setSongs(updated);
       calculateStats(confirmations, updated);
+
+      console.log("📊 Canciones después de eliminar:", updated.length);
+
+      setDeleteModal({ isOpen: false, type: null, item: null });
+      showSuccessToast("🎵 Canción eliminada exitosamente");
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error al eliminar canción:", error);
+
+      let errorMessage = "No se pudo eliminar la canción";
+      if (error.message.includes("policy")) {
+        errorMessage = "Error de permisos en la base de datos";
+      } else if (error.message.includes("not found")) {
+        errorMessage = "La canción ya no existe";
+      } else if (error.message.includes("network")) {
+        errorMessage = "Error de conexión a internet";
+      }
+
+      setDeleteModal({ isOpen: false, type: null, item: null });
+      showErrorToast(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -211,7 +335,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm ">
+      <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -261,9 +385,46 @@ export default function AdminDashboard() {
         <AdminConfirmationsTable
           filteredConfirmations={filteredConfirmations}
           deleteConfirmation={deleteConfirmation}
+          isDeleting={isDeletingConfirmation}
         />
-        <AdminSongsTable songs={songs} deleteSong={deleteSong} />
+        <AdminSongsTable
+          songs={songs}
+          deleteSong={deleteSong}
+          isDeleting={isDeleting}
+        />
       </main>
+
+      {/* 🎭 MODALES PERSONALIZADOS */}
+      <DeleteSongModal
+        isOpen={deleteModal.isOpen && deleteModal.type === "song"}
+        onClose={() =>
+          setDeleteModal({ isOpen: false, type: null, item: null })
+        }
+        onConfirm={confirmDeleteSong}
+        song={deleteModal.item}
+        isDeleting={isDeleting}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen && deleteModal.type === "confirmation"}
+        onClose={() =>
+          setDeleteModal({ isOpen: false, type: null, item: null })
+        }
+        onConfirm={confirmDeleteConfirmation}
+        confirmation={deleteModal.item}
+      />
+
+      <SuccessToast
+        isVisible={successToast.isVisible}
+        message={successToast.message}
+        onClose={() => setSuccessToast({ isVisible: false, message: "" })}
+      />
+
+      <ErrorToast
+        isVisible={errorToast.isVisible}
+        message={errorToast.message}
+        onClose={() => setErrorToast({ isVisible: false, message: "" })}
+      />
     </div>
   );
 }

@@ -1,9 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Trash2 } from "lucide-react";
+import { Music, Trash2, Loader2 } from "lucide-react";
 
-export default function AdminSongsTable({ songs, deleteSong }) {
+export default function AdminSongsTable({
+  songs,
+  deleteSong,
+  isDeleting = false,
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -84,10 +88,15 @@ export default function AdminSongsTable({ songs, deleteSong }) {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => deleteSong(song.id)}
-                        className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
+                        disabled={isDeleting}
+                        className="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Eliminar canción"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {isDeleting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                     </td>
                   </motion.tr>
