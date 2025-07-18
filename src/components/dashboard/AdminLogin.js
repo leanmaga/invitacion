@@ -10,6 +10,7 @@ export default function AdminLogin({
   handleLogin,
   setPassword,
   setShowPassword,
+  nombre,
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-quince-50 to-gold-50 flex items-center justify-center p-4">
@@ -24,7 +25,7 @@ export default function AdminLogin({
             Panel de Administración
           </h1>
           <p className="text-gray-600">
-            Quinceañera Isabella - Acceso Restringido
+            Quinceañera {nombre} - Acceso Restringido
           </p>
         </div>
 

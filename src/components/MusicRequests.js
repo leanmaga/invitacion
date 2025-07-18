@@ -111,16 +111,10 @@ export default function MusicRequests() {
     }
   };
 
-  const popularSongs = [
-    "Quinceañera - Cristian Castro",
-    "Tiempo de Vals - Chayanne",
-    "Mi Niña Bonita - Jesse & Joy",
-  ];
-
   return (
     <section
       id="music"
-      className="py-20 bg-gradient-to-br from-quince-50 to-gold-50"
+      className="py-20 bg-gradient-to-r from-quince-50 to-quince-400"
     >
       {/* Custom scrollbar styles */}
       <style jsx global>{`
@@ -157,8 +151,8 @@ export default function MusicRequests() {
             Pide tu Canción Favorita
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Ayúdanos a crear la playlist perfecta para esta noche mágica. ¡Tu
-            música favorita puede ser la que haga bailar a todos!
+            Ayúdanos a crear la playlist perfecta. ¡Tu canción favorita puede
+            ser la que haga bailar a todos!
           </p>
         </motion.div>
 
@@ -371,83 +365,6 @@ export default function MusicRequests() {
                   </p>
                 </div>
               )}
-            </motion.div>
-
-            {/* Popular Songs */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="glass rounded-3xl p-8"
-            >
-              <h3 className="font-serif text-2xl font-bold text-gray-800 mb-6">
-                Canciones Populares
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {submitted
-                  ? "Ya enviaste tu canción. Para elegir otra, recarga la página:"
-                  : "Estas son algunas de las canciones más solicitadas para quinceañeras. Click para seleccionar:"}
-              </p>
-
-              <div className="space-y-4">
-                {popularSongs.map((song, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    whileHover={{
-                      scale: submitted ? 1 : 1.02,
-                      x: submitted ? 0 : 5,
-                    }}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      submitted
-                        ? "bg-gray-100 cursor-not-allowed opacity-60"
-                        : "bg-white/50 hover:bg-white/80 cursor-pointer"
-                    }`}
-                    onClick={() => {
-                      if (submitted) {
-                        alert(
-                          "Ya enviaste tu canción. Para agregar otra, recarga la página."
-                        );
-                        return;
-                      }
-                      const [songName, artist] = song.split(" - ");
-                      setSongRequest(songName);
-                      setArtistRequest(artist || "");
-                    }}
-                  >
-                    <Music className="w-5 h-5 text-quince-400 flex-shrink-0" />
-                    <span
-                      className={`font-medium ${
-                        submitted ? "text-gray-500" : "text-gray-700"
-                      }`}
-                    >
-                      {song}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="p-6 bg-gradient-to-r from-gold-100 to-gold-200 rounded-2xl"
-            >
-              <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <Music className="w-5 h-5 text-gold-600" />
-                Nota Musical
-              </h4>
-              <p className="text-gray-700">
-                Nuestro DJ profesional se encargará de crear el ambiente
-                perfecto mezclando tus solicitudes con música tradicional y
-                moderna para que todos disfruten.
-              </p>
             </motion.div>
           </div>
         </div>

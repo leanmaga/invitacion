@@ -2,37 +2,35 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
-
-const details = [
-  {
-    icon: Calendar,
-    title: "Fecha",
-    value: "Sábado, 15 de Abril 2024",
-    description: "Una fecha especial para una ocasión especial",
-  },
-  {
-    icon: Clock,
-    title: "Hora",
-    value: "7:00 PM - 2:00 AM",
-    description: "Una noche llena de celebración y alegría",
-  },
-  {
-    icon: MapPin,
-    title: "Lugar",
-    value: "Salón de Eventos Crystal",
-    description: "Av. Principal 123, Ciudad Mágica",
-  },
-  {
-    icon: Users,
-    title: "Capacidad",
-    value: "150 Invitados",
-    description: "Espacio elegante para todos nuestros seres queridos",
-  },
-];
+import { useQuinceaneraConfig } from "@/hooks/useQuinceaneraConfig";
 
 export default function EventDetails() {
+  const { fechaEvento, horaEvento, lugar, direccion } = useQuinceaneraConfig();
+
+  const details = [
+    {
+      icon: Calendar,
+      title: "Fecha",
+      value: fechaEvento,
+    },
+    {
+      icon: Clock,
+      title: "Hora",
+      value: horaEvento,
+    },
+    {
+      icon: MapPin,
+      title: "Lugar",
+      value: lugar,
+      description: direccion,
+    },
+  ];
+
   return (
-    <section id="details" className="py-20 bg-white">
+    <section
+      id="details"
+      className="py-20 bg-gradient-to-r from-quince-50 to-quince-400"
+    >
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -49,7 +47,7 @@ export default function EventDetails() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-8">
           {details.map((detail, index) => (
             <motion.div
               key={detail.title}
@@ -88,13 +86,9 @@ export default function EventDetails() {
           viewport={{ once: true }}
           className="mt-16 p-8 glass rounded-3xl text-center"
         >
-          <h3 className="font-elegant text-3xl font-bold text-quince-600 mb-4">
+          <h3 className="font-elegant text-2xl font-bold text-quince-600 mb-4">
             ¡Tu presencia es el mejor regalo!
           </h3>
-          <p className="text-gray-700 text-lg">
-            Acompáñanos en esta noche mágica llena de música, baile y momentos
-            inolvidables
-          </p>
         </motion.div>
       </div>
     </section>

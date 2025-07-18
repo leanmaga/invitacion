@@ -2,10 +2,28 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Navigation, Phone, Clock } from "lucide-react";
+import { useQuinceaneraConfig } from "@/hooks/useQuinceaneraConfig";
+import AnimatedButterflies from "./AnimatedButterflies";
 
 export default function LocationSection() {
+  const { lugar, direccion, telefono, horaEvento } = useQuinceaneraConfig();
+
+  // Generar URLs de mapas dinámicamente basado en la dirección
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    direccion
+  )}`;
+  const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(direccion)}`;
+
   return (
-    <section id="location" className="py-20 bg-white">
+    <section
+      id="location"
+      className="py-20 min-h-screen flex items-center justify-center relative overflow-hidden"
+    >
+      <AnimatedButterflies
+        count={20}
+        animationDuration={4}
+        delayBetweenButterflies={0.3}
+      />
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -18,9 +36,6 @@ export default function LocationSection() {
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-gray-800 mb-4">
             Ubicación del Evento
           </h2>
-          <p className="text-xl text-gray-600">
-            Un lugar mágico para una noche inolvidable
-          </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -34,7 +49,7 @@ export default function LocationSection() {
           >
             <div className="glass rounded-3xl p-8">
               <h3 className="font-serif text-3xl font-bold text-gray-800 mb-6">
-                Salón de Eventos Crystal
+                {lugar}
               </h3>
 
               <div className="space-y-6">
@@ -47,11 +62,7 @@ export default function LocationSection() {
                     <h4 className="font-semibold text-gray-800 mb-1">
                       Dirección
                     </h4>
-                    <p className="text-gray-600">
-                      Av. Principal 123, Colonia Elegante
-                      <br />
-                      Ciudad Mágica, CP 12345
-                    </p>
+                    <p className="text-gray-600">{direccion}</p>
                   </div>
                 </motion.div>
 
@@ -64,11 +75,7 @@ export default function LocationSection() {
                     <h4 className="font-semibold text-gray-800 mb-1">
                       Contacto
                     </h4>
-                    <p className="text-gray-600">
-                      +52 (555) 123-4567
-                      <br />
-                      eventos@crystalsalon.com
-                    </p>
+                    <p className="text-gray-600">{telefono}</p>
                   </div>
                 </motion.div>
 
@@ -82,9 +89,9 @@ export default function LocationSection() {
                       Horario
                     </h4>
                     <p className="text-gray-600">
-                      Recepción: 7:00 PM
+                      Recepción: {horaEvento.split(" - ")[0]}
                       <br />
-                      Evento hasta: 2:00 AM
+                      Evento hasta: {horaEvento.split(" - ")[1]}
                     </p>
                   </div>
                 </motion.div>
@@ -95,9 +102,7 @@ export default function LocationSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex-1 bg-gradient-to-r from-quince-500 to-quince-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300"
-                  onClick={() =>
-                    window.open("https://maps.google.com", "_blank")
-                  }
+                  onClick={() => window.open(googleMapsUrl, "_blank")}
                 >
                   <Navigation className="w-5 h-5 inline mr-2" />
                   Ver en Google Maps
@@ -107,29 +112,12 @@ export default function LocationSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex-1 border-2 border-quince-500 text-quince-600 px-6 py-3 rounded-full font-semibold hover:bg-quince-50 transition-all duration-300"
-                  onClick={() => window.open("https://waze.com", "_blank")}
+                  onClick={() => window.open(wazeUrl, "_blank")}
                 >
                   Abrir en Waze
                 </motion.button>
               </div>
             </div>
-
-            {/* Parking Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="p-6 bg-gradient-to-r from-gold-100 to-gold-200 rounded-2xl"
-            >
-              <h4 className="font-semibold text-gray-800 mb-2">
-                Información de Estacionamiento
-              </h4>
-              <p className="text-gray-700">
-                Estacionamiento gratuito disponible para todos los invitados.
-                Servicio de valet parking incluido para mayor comodidad.
-              </p>
-            </motion.div>
           </motion.div>
 
           {/* Map Placeholder */}
@@ -146,7 +134,7 @@ export default function LocationSection() {
                 <div className="text-center">
                   <MapPin className="w-16 h-16 text-quince-500 mx-auto mb-4" />
                   <h3 className="font-serif text-2xl font-bold text-gray-800 mb-2">
-                    Salón Crystal
+                    {lugar}
                   </h3>
                   <p className="text-gray-600">
                     Haz clic para ver el mapa interactivo
@@ -179,7 +167,7 @@ export default function LocationSection() {
               <motion.div
                 whileHover={{ opacity: 1 }}
                 className="absolute inset-0 bg-black/20 opacity-0 transition-opacity cursor-pointer flex items-center justify-center"
-                onClick={() => window.open("https://maps.google.com", "_blank")}
+                onClick={() => window.open(googleMapsUrl, "_blank")}
               >
                 <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3">
                   <span className="font-semibold text-gray-800">

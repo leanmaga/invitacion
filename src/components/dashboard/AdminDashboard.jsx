@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Crown, RefreshCw, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useQuinceaneraConfig } from "@/hooks/useQuinceaneraConfig";
 import {
   AdminLogin,
   AdminStats,
@@ -43,6 +44,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGuests, setFilterGuests] = useState("all");
+
+  const { nombre } = useQuinceaneraConfig();
 
   // 🎭 ESTADOS PARA LOS MODALES PERSONALIZADOS
   const [deleteModal, setDeleteModal] = useState({
@@ -291,7 +294,7 @@ export default function AdminDashboard() {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `confirmaciones-${
+    link.download = `confirmaciones-${nombre.toLowerCase()}-${
       new Date().toISOString().split("T")[0]
     }.csv`;
     link.click();
@@ -329,6 +332,7 @@ export default function AdminDashboard() {
         setShowPassword={setShowPassword}
         handleLogin={handleLogin}
         authError={authError}
+        nombre={nombre}
       />
     );
   }
@@ -342,7 +346,7 @@ export default function AdminDashboard() {
               <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-quince-500 flex-shrink-0" />
               <div className="min-w-0">
                 <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  Admin - Isabella
+                  Admin - {nombre}
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600">
                   Gestión de confirmaciones

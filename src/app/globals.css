@@ -1,42 +1,63 @@
 @import "tailwindcss";
 
 @theme {
-  /* Configuración de colores personalizados */
-  --color-quince-50: #fdf2f8;
-  --color-quince-100: #fce7f3;
-  --color-quince-200: #fbcfe8;
-  --color-quince-300: #f9a8d4;
-  --color-quince-400: #f472b6;
-  --color-quince-500: #ec4899;
-  --color-quince-600: #db2777;
+  /* 🟣 Paleta Lila - Color principal de la quinceañera */
+  --color-quince-50: #faf5ff;
+  --color-quince-100: #f3e8ff;
+  --color-quince-200: #e9d5ff;
+  --color-quince-300: #d8b4fe;
+  --color-quince-400: #c084fc;
+  --color-quince-500: #a855f7;
+  --color-quince-600: #9333ea;
+  --color-quince-700: #7c3aed;
+  --color-quince-800: #6b21a8;
+  --color-quince-900: #581c87;
 
+  /* 🌟 Paleta Dorado - Color secundario elegante */
   --color-gold-50: #fffbeb;
   --color-gold-100: #fef3c7;
   --color-gold-200: #fde68a;
   --color-gold-300: #fcd34d;
   --color-gold-400: #fbbf24;
   --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
+  --color-gold-800: #92400e;
+  --color-gold-900: #78350f;
 
-  /* Variables del sistema de diseño */
+  /* ⚫ Paleta Elegante (Negros y Grises) - Color terciario sofisticado */
+  --color-elegant-50: #f8fafc;
+  --color-elegant-100: #f1f5f9;
+  --color-elegant-200: #e2e8f0;
+  --color-elegant-300: #cbd5e1;
+  --color-elegant-400: #94a3b8;
+  --color-elegant-500: #64748b;
+  --color-elegant-600: #475569;
+  --color-elegant-700: #334155;
+  --color-elegant-800: #1e293b;
+  --color-elegant-900: #0f172a;
+  --color-elegant-950: #020617;
+
+  /* Variables del sistema de diseño actualizadas */
   --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
+  --color-foreground: #0f172a;
   --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
+  --color-card-foreground: #0f172a;
   --color-popover: #ffffff;
-  --color-popover-foreground: #0a0a0a;
-  --color-primary: #171717;
-  --color-primary-foreground: #fafafa;
-  --color-secondary: #f5f5f5;
-  --color-secondary-foreground: #171717;
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #171717;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #9333ea; /* Lila como color primario */
+  --color-primary-foreground: #faf5ff;
+  --color-secondary: #fef3c7; /* Dorado suave como secundario */
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #fbbf24; /* Dorado como accent */
+  --color-accent-foreground: #0f172a;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #171717;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #9333ea; /* Anillo lila */
 
   /* Border radius */
   --radius-lg: 0.5rem;
@@ -47,38 +68,41 @@
   --font-family-elegant: ui-serif, Georgia, Cambria, "Times New Roman", Times,
     serif;
   --font-family-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-family-coockie: var(--font-coockie), cursive;
 }
 
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: #0a0a0a;
-    --color-foreground: #fafafa;
-    --color-card: #0a0a0a;
-    --color-card-foreground: #fafafa;
-    --color-popover: #0a0a0a;
-    --color-popover-foreground: #fafafa;
-    --color-primary: #fafafa;
-    --color-primary-foreground: #171717;
-    --color-secondary: #262626;
-    --color-secondary-foreground: #fafafa;
-    --color-muted: #262626;
-    --color-muted-foreground: #a3a3a3;
-    --color-accent: #262626;
-    --color-accent-foreground: #fafafa;
+    --color-background: #0f172a;
+    --color-foreground: #f8fafc;
+    --color-card: #1e293b;
+    --color-card-foreground: #f8fafc;
+    --color-popover: #1e293b;
+    --color-popover-foreground: #f8fafc;
+    --color-primary: #c084fc; /* Lila más claro en dark mode */
+    --color-primary-foreground: #0f172a;
+    --color-secondary: #334155;
+    --color-secondary-foreground: #f8fafc;
+    --color-muted: #334155;
+    --color-muted-foreground: #94a3b8;
+    --color-accent: #fbbf24;
+    --color-accent-foreground: #0f172a;
     --color-destructive: #7f1d1d;
-    --color-destructive-foreground: #fafafa;
-    --color-border: #262626;
-    --color-input: #262626;
-    --color-ring: #d4d4d8;
+    --color-destructive-foreground: #f8fafc;
+    --color-border: #334155;
+    --color-input: #334155;
+    --color-ring: #c084fc;
   }
 }
-
+.font-coockie {
+  font-family: var(--font-family-coockie);
+}
 /* Estilos personalizados */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar con nuevos colores */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -88,19 +112,72 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-quince-300);
+  background-color: var(--color-quince-400);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-quince-400);
+  background-color: var(--color-quince-500);
 }
 
-/* Glass effect */
+/* Glass effect auténtico - como el generador */
 .glass {
-  backdrop-filter: blur(16px) saturate(180%);
-  background-color: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(209, 213, 219, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(6.1px);
+  -webkit-backdrop-filter: blur(6.1px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Glass effect variant lila */
+.glass-quince {
+  background: rgba(168, 85, 247, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(168, 85, 247, 0.1);
+  backdrop-filter: blur(6.1px);
+  -webkit-backdrop-filter: blur(6.1px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+/* Glass effect variant dorado */
+.glass-gold {
+  background: rgba(245, 158, 11, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(245, 158, 11, 0.1);
+  backdrop-filter: blur(6.1px);
+  -webkit-backdrop-filter: blur(6.1px);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+/* Glass effect variant elegante */
+.glass-elegant {
+  background: rgba(248, 250, 252, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(6.1px);
+  -webkit-backdrop-filter: blur(6.1px);
+  border: 1px solid rgba(248, 250, 252, 0.35);
+}
+
+/* Glass effect intenso */
+.glass-intense {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Glass effect sutil */
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Floating animation */
@@ -118,7 +195,7 @@ html {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Sparkle effect */
+/* Sparkle effect mejorado */
 .sparkle {
   position: relative;
   overflow: hidden;
@@ -134,10 +211,11 @@ html {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
+    rgba(192, 132, 252, 0.4),
+    /* Brillo lila suave */ rgba(251, 191, 36, 0.4),
+    /* Brillo dorado suave */ transparent
   );
-  animation: shimmer 2s infinite;
+  animation: shimmer 3s infinite;
 }
 
 @keyframes shimmer {
@@ -147,4 +225,90 @@ html {
   100% {
     left: 100%;
   }
+}
+
+/* Gradientes temáticos para la quinceañera */
+.gradient-quince {
+  background: linear-gradient(
+    135deg,
+    var(--color-quince-400) 0%,
+    var(--color-quince-600) 100%
+  );
+}
+
+.gradient-gold {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-400) 0%,
+    var(--color-gold-600) 100%
+  );
+}
+
+.gradient-elegant {
+  background: linear-gradient(
+    135deg,
+    var(--color-elegant-700) 0%,
+    var(--color-elegant-900) 100%
+  );
+}
+
+/* Gradiente principal de la quinceañera */
+.gradient-quince-gold {
+  background: linear-gradient(
+    135deg,
+    var(--color-quince-500) 0%,
+    var(--color-gold-500) 100%
+  );
+}
+
+/* Texto con gradiente */
+.text-gradient-quince {
+  background: linear-gradient(
+    135deg,
+    var(--color-quince-600) 0%,
+    var(--color-gold-600) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Botones temáticos */
+.btn-quince {
+  background: var(--color-quince-500);
+  color: var(--color-quince-50);
+  border: 2px solid var(--color-quince-600);
+  transition: all 0.3s ease;
+}
+
+.btn-quince:hover {
+  background: var(--color-quince-600);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-gold {
+  background: var(--color-gold-500);
+  color: var(--color-elegant-900);
+  border: 2px solid var(--color-gold-600);
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  background: var(--color-gold-600);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-elegant {
+  background: var(--color-elegant-800);
+  color: var(--color-elegant-50);
+  border: 2px solid var(--color-elegant-900);
+  transition: all 0.3s ease;
+}
+
+.btn-elegant:hover {
+  background: var(--color-elegant-900);
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.4);
+  transform: translateY(-2px);
 }

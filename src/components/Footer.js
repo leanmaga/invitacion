@@ -2,45 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Heart,
-  Crown,
-  Sparkles,
-  Instagram,
-  Facebook,
-  Apple as WhatsApp,
-} from "lucide-react";
+import { Heart, Crown, Sparkles, Apple as WhatsApp } from "lucide-react";
+import { useQuinceaneraConfig } from "@/hooks/useQuinceaneraConfig";
+import AnimatedButterflies from "./AnimatedButterflies";
 
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
+  const { nombre, telefono, fechaEvento, horaEvento, lugar, direccion } =
+    useQuinceaneraConfig();
 
   // Solo ejecutar en el cliente para evitar errores de hidratación
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Posiciones fijas para los sparkles flotantes (evita Math.random())
-  const floatingSparklePositions = [
-    "10%",
-    "20%",
-    "30%",
-    "40%",
-    "50%",
-    "60%",
-    "70%",
-    "80%",
-    "90%",
-    "95%",
-  ];
-
-  const socialLinks = [
-    { icon: Instagram, href: "#", label: "@isabella_quince" },
-    { icon: Facebook, href: "#", label: "Isabella Quinceañera" },
-    { icon: WhatsApp, href: "#", label: "+52 (555) 123-4567" },
-  ];
-
   return (
     <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16 relative overflow-hidden">
+      <AnimatedButterflies
+        count={20}
+        animationDuration={4}
+        delayBetweenButterflies={0.3}
+      />
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -50,16 +32,15 @@ export default function Footer() {
           className="text-center mb-12"
         >
           <Crown className="w-12 h-12 mx-auto text-gold-400 mb-4" />
-          <h2 className="font-elegant text-4xl md:text-5xl font-bold text-white mb-4">
-            Isabella
+          <h2 className="font-coockie text-4xl md:text-5xl font-bold text-white mb-4">
+            {nombre}
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Gracias por ser parte de este momento tan especial en mi vida. Tu
-            presencia hará que esta noche sea verdaderamente mágica.
+            Gracias por ser parte de este momento tan especial en mi vida.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-12 mb-12">
+        <div className="flex items-center justify-center gap-12 mb-12">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -72,9 +53,7 @@ export default function Footer() {
               Información de Contacto
             </h3>
             <div className="space-y-2 text-gray-300">
-              <p>Familia García López</p>
-              <p>+52 (555) 123-4567</p>
-              <p>isabella.quince@email.com</p>
+              <p>{telefono}</p>
             </div>
           </motion.div>
 
@@ -90,39 +69,11 @@ export default function Footer() {
               Detalles del Evento
             </h3>
             <div className="space-y-2 text-gray-300">
-              <p>15 de Abril, 2024</p>
-              <p>7:00 PM - 2:00 AM</p>
-              <p>Salón Crystal</p>
-              <p>Av. Principal 123</p>
+              <p>{fechaEvento}</p>
+              <p>{horaEvento}</p>
+              <p>{lugar}</p>
+              <p>{direccion}</p>
             </div>
-          </motion.div>
-
-          {/* Social Media */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-center md:text-right"
-          >
-            <h3 className="font-serif text-xl font-bold mb-4 text-quince-300">
-              Síguenos
-            </h3>
-            <div className="flex justify-center md:justify-end gap-4">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={index}
-                  href={social.href}
-                  whileHover={{ scale: 1.2, rotate: 360 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-10 h-10 bg-quince-500 hover:bg-quince-400 rounded-full flex items-center justify-center transition-colors"
-                  title={social.label}
-                >
-                  <social.icon className="w-5 h-5" />
-                </motion.a>
-              ))}
-            </div>
-            <p className="mt-4 text-gray-300 text-sm">#Isabella15Años</p>
           </motion.div>
         </div>
 
@@ -148,38 +99,11 @@ export default function Footer() {
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <span>Hecho con</span>
             <Heart className="w-4 h-4 text-quince-400" />
-            <span>para Isabella • 2024</span>
+            <span>
+              para {nombre} • {new Date().getFullYear()}
+            </span>
           </div>
         </motion.div>
-      </div>
-
-      {/* Floating decorative elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {mounted &&
-          floatingSparklePositions.map((leftPosition, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: [0, 0.3, 0],
-                y: [0, -100, -200],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                delay: i * 2,
-                ease: "easeOut",
-              }}
-              style={{
-                left: leftPosition,
-                top: "100%",
-              }}
-            >
-              <Sparkles className="text-quince-400 w-3 h-3" />
-            </motion.div>
-          ))}
       </div>
     </footer>
   );

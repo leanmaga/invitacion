@@ -14,6 +14,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { useQuinceaneraConfig } from "@/hooks/useQuinceaneraConfig";
+import AnimatedButterflies from "./AnimatedButterflies";
 
 export default function RSVPSection() {
   const [formData, setFormData] = useState({
@@ -28,11 +30,11 @@ export default function RSVPSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 📱 NÚMERO DE WHATSAPP DESDE VARIABLES DE ENTORNO
-  const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const { nombre, whatsapp, telefono, fechaLimiteRSVP } =
+    useQuinceaneraConfig();
 
   // ⚠️ Validación de variables de entorno
-  if (!WHATSAPP_NUMBER) {
+  if (!whatsapp) {
     console.error(
       "❌ NEXT_PUBLIC_WHATSAPP_NUMBER no está configurado en .env.local"
     );
@@ -49,7 +51,7 @@ export default function RSVPSection() {
     const guestText =
       data.guests === "1" ? "Solo yo" : `${data.guests} personas`;
 
-    let message = `🎉 *CONFIRMACIÓN DE ASISTENCIA - QUINCEAÑERA ISABELLA*\n\n`;
+    let message = `🎉 *CONFIRMACIÓN DE ASISTENCIA - QUINCEAÑERA ${nombre.toUpperCase()}*\n\n`;
     message += `👤 *Nombre:* ${data.name}\n`;
     message += `📧 *Email:* ${data.email}\n`;
     message += `📱 *Teléfono:* ${data.phone || "No proporcionado"}\n`;
@@ -60,7 +62,7 @@ export default function RSVPSection() {
     }
 
     if (data.message) {
-      message += `💌 *Mensaje para Isabella:* ${data.message}\n`;
+      message += `💌 *Mensaje para ${nombre}:* ${data.message}\n`;
     }
 
     message += `\n📅 *Fecha:* ${new Date().toLocaleDateString("es-ES", {
@@ -76,7 +78,7 @@ export default function RSVPSection() {
 
   const sendToWhatsApp = (data) => {
     const message = formatWhatsAppMessage(data);
-    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const whatsappURL = `https://wa.me/${whatsapp}?text=${message}`;
     window.open(whatsappURL, "_blank");
   };
 
@@ -178,8 +180,13 @@ export default function RSVPSection() {
   return (
     <section
       id="rsvp"
-      className="py-20 bg-gradient-to-br from-quince-50 to-gold-50"
+      className="py-20 min-h-screen flex items-center justify-center relative overflow-hidden"
     >
+      <AnimatedButterflies
+        count={20}
+        animationDuration={4}
+        delayBetweenButterflies={0.3}
+      />
       <div className="max-w-4xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -193,8 +200,9 @@ export default function RSVPSection() {
             Confirma tu Asistencia
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Por favor, confirma tu asistencia antes del 1 de abril para que
-            podamos preparar todo perfectamente para ti.
+            Por favor, confirma tu asistencia antes del{" "}
+            {fechaLimiteRSVP.split(",")[0]} para que podamos preparar todo
+            perfectamente para ti.
           </p>
         </motion.div>
 
@@ -263,30 +271,8 @@ export default function RSVPSection() {
                   onChange={handleChange}
                   disabled={loading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
-                  placeholder="+54 11 2776-4823"
+                  placeholder={telefono}
                 />
-              </div>
-
-              {/* Number of guests */}
-              <div>
-                <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-quince-500" />
-                  Número de Invitados *
-                </label>
-                <select
-                  name="guests"
-                  value={formData.guests}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all disabled:opacity-50"
-                >
-                  <option value="1">Solo yo</option>
-                  <option value="2">2 personas (yo + acompañante)</option>
-                  <option value="3">3 personas</option>
-                  <option value="4">4 personas</option>
-                  <option value="5">5 personas</option>
-                </select>
               </div>
             </div>
 
@@ -311,7 +297,7 @@ export default function RSVPSection() {
             <div>
               <label className=" text-gray-700 font-medium mb-2 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-quince-500" />
-                Mensaje Especial para Isabella
+                Mensaje Especial para {nombre}
               </label>
               <textarea
                 name="message"
@@ -320,7 +306,7 @@ export default function RSVPSection() {
                 rows={4}
                 disabled={loading}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-quince-500 focus:border-transparent transition-all resize-none disabled:opacity-50"
-                placeholder="Comparte tus mejores deseos para Isabella en su día especial..."
+                placeholder={`Comparte tus mejores deseos para ${nombre} en su día especial...`}
               />
             </div>
 
@@ -354,9 +340,9 @@ export default function RSVPSection() {
             className="mt-8 p-6 bg-gradient-to-r from-gold-100 to-gold-200 rounded-2xl"
           >
             <p className="text-gray-700 text-center">
-              <strong>Fecha límite para confirmar:</strong> 30 de Julio, 2025
+              <strong>Fecha límite para confirmar:</strong> {fechaLimiteRSVP}
               <br />
-              Para preguntas, contacta a: +54 11 2776-4823
+              Para preguntas, contacta a: {telefono}
               <br />
               <span className="text-sm text-gray-600">
                 📱 Tu confirmación se enviará automáticamente por WhatsApp y se
